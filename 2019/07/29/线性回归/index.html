@@ -232,7 +232,7 @@
 
 
 
-height:50vh;
+height:60vh;
 ">
     
     <!-- 主页  -->
@@ -403,11 +403,9 @@ height:50vh;
     <article class="article-entry">
         <h2 id="单变量线性回归"><a href="#单变量线性回归" class="headerlink" title="单变量线性回归"></a>单变量线性回归</h2><p>在本部分的练习中，您将使用一个变量实现线性回归，以预测食品卡车的利润：<br>假设你是一家餐馆的首席执行官，正在考虑不同的城市开设一个新的分店。该连锁店已经在各个城市拥有卡车，而且你有来自城市的利润和人口数据。<br>您希望使用这些数据来帮助您选择将哪个城市扩展到下一个城市。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
-
 <h3 id="1-导入数据并查看："><a href="#1-导入数据并查看：" class="headerlink" title="1.导入数据并查看："></a>1.导入数据并查看：</h3><p>注意：开始任何任务之前，通过可视化来理解数据通常是有用的。在这个数据集中，只有两个属性（利润和人口），可以绘制散点图。许多其他问题是多维度的，例如下面的多变量线性回归的例子，就不能再二维图上画出来。</p>
 <p>.describe()显示各统计值</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">path = <span class="string">r'C:/Users/DH/Desktop/ex1data1.txt'</span></span><br><span class="line">data = pd.read_csv(path,names=[<span class="string">'Population'</span>,<span class="string">'Profit'</span>])</span><br><span class="line">print(data.describe())</span><br></pre></td></tr></table></figure>
-
 <pre><code>       Population     Profit
 count   97.000000  97.000000
 mean     8.159800   5.839135
@@ -416,45 +414,38 @@ min      5.026900  -2.680700
 25%      5.707700   1.986900
 50%      6.589400   4.562300
 75%      8.578100   7.046700
-max     22.203000  24.147000</code></pre><p>绘制散点图：<br>plt.scatter(x,y)</p>
+max     22.203000  24.147000
+</code></pre><p>绘制散点图：<br>plt.scatter(x,y)</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">plt.scatter(data[<span class="string">'Population'</span>], data[<span class="string">'Profit'</span>])</span><br><span class="line">plt.xlabel(<span class="string">'Population'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Profit'</span>)</span><br><span class="line"><span class="comment">#data.plot(kind='scatter', x='Population', y='Profit', figsize=(8,5))</span></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-
 <p><img src="/images/output_6_0.png" alt="png"></p>
-<h3 id="2-实现代价函数表达式，为所需各变量赋值"><a href="#2-实现代价函数表达式，为所需各变量赋值" class="headerlink" title="2.实现代价函数表达式，为所需各变量赋值"></a>2.实现代价函数表达式，为所需各变量赋值</h3><p><img src="/images/%E6%8D%95%E8%8E%B71.png" alt="png"></p>
+<h3 id="2-实现代价函数表达式，为所需各变量赋值"><a href="#2-实现代价函数表达式，为所需各变量赋值" class="headerlink" title="2.实现代价函数表达式，为所需各变量赋值"></a>2.实现代价函数表达式，为所需各变量赋值</h3><p><img src="/images/img1.png" alt="png"></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">computeCost</span><span class="params">(X,Y,theta)</span>:</span></span><br><span class="line">    inner = np.power((X*theta.T)-Y,<span class="number">2</span>)</span><br><span class="line">    <span class="keyword">return</span> np.sum(inner)/(<span class="number">2</span>*len(X))</span><br></pre></td></tr></table></figure>
-
 <p>数据集插入一列方便之后进行向量运算，作为$x_0$,值均为1：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data.insert(<span class="number">0</span>,<span class="string">'Ones'</span>,<span class="number">1</span>)</span><br><span class="line">print(data.head())</span><br></pre></td></tr></table></figure>
-
 <pre><code>   Ones  Population   Profit
 0     1      6.1101  17.5920
 1     1      5.5277   9.1302
 2     1      8.5186  13.6620
 3     1      7.0032  11.8540
-4     1      5.8598   6.8233</code></pre><p>对表达式中自变量X，因变量Y，未知参数θ初始化<br>（1）data.shape[1]表示列数，data.shape[0]表示行数。<br>（2）data.iloc[]函数通过行号来取行数据<br>     data.iloc[:,cols-1:cols]提取最后一列数据，从0开始计数</p>
+4     1      5.8598   6.8233
+</code></pre><p>对表达式中自变量X，因变量Y，未知参数θ初始化<br>（1）data.shape[1]表示列数，data.shape[0]表示行数。<br>（2）data.iloc[]函数通过行号来取行数据<br>     data.iloc[:,cols-1:cols]提取最后一列数据，从0开始计数</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#set X(training data) and Y(target varible)</span></span><br><span class="line">cols = data.shape[<span class="number">1</span>] <span class="comment">#列数</span></span><br><span class="line">X = data.iloc[:,<span class="number">0</span>:cols<span class="number">-1</span>] </span><br><span class="line">Y = data.iloc[:,cols<span class="number">-1</span>:cols] <span class="comment">#取最后一列，即目标向量</span></span><br></pre></td></tr></table></figure>
-
 <p>将X,Y转换为矩阵，初始化theta为一个（1,2）矩阵：<br>转换为矩阵是为了方便矩阵运算，对于矩阵matrix，<em>即为点乘，而对于数组array，</em>为对应位置元素相乘，若要点乘，则需要用到np.dot(X1,X2)</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">X = np.matrix(X.values)</span><br><span class="line">Y = np.matrix(Y.values)</span><br><span class="line">theta =np.matrix([<span class="number">0</span>,<span class="number">0</span>])</span><br></pre></td></tr></table></figure>
-
-<h3 id="3-实现梯度下降函数"><a href="#3-实现梯度下降函数" class="headerlink" title="3.实现梯度下降函数"></a>3.实现梯度下降函数</h3><p><img src="/images/%E6%8D%95%E8%8E%B72.png" alt="png"></p>
+<h3 id="3-实现梯度下降函数"><a href="#3-实现梯度下降函数" class="headerlink" title="3.实现梯度下降函数"></a>3.实现梯度下降函数</h3><p><img src="/images/img2.png" alt="png"></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gradientDescent</span><span class="params">(X, Y, theta, alpha, epoch)</span>:</span></span><br><span class="line">    temp = np.matrix(np.zeros(theta.shape))  <span class="comment"># 初始化一个临时矩阵(1, 2)</span></span><br><span class="line">    cost = np.zeros(epoch)                   <span class="comment"># 初始化一个ndarray，包含每次epoch的cost</span></span><br><span class="line">    m = X.shape[<span class="number">0</span>]                           <span class="comment"># m为总的样本数</span></span><br><span class="line">    <span class="comment">#利用向量化一步求解</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(epoch):</span><br><span class="line">        temp = theta - (alpha / m) * (X * theta.T - Y).T * X</span><br><span class="line">        theta = temp</span><br><span class="line">        cost[i] = computeCost(X,Y,theta) <span class="comment">#得到每次迭代代价函数的值</span></span><br><span class="line">    <span class="keyword">return</span> theta,cost</span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化学习率α和要进行迭代的次数</span></span><br><span class="line">alpha = <span class="number">0.01</span></span><br><span class="line">epoch = <span class="number">1000</span></span><br><span class="line"><span class="comment">#现在让我们运行梯度下降算法来将我们的参数θ适合于训练集</span></span><br><span class="line">final_theta,cost = gradientDescent(X,Y,theta,alpha,epoch)</span><br></pre></td></tr></table></figure>
-
 <h3 id="4-绘制线性模型，直观看出拟合"><a href="#4-绘制线性模型，直观看出拟合" class="headerlink" title="4.绘制线性模型，直观看出拟合"></a>4.绘制线性模型，直观看出拟合</h3><p>（1）np.linspace()在指定的间隔内返回均匀间隔的数字。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">x = np.linspace(data.Population.min(),data.Population.max(),<span class="number">100</span>)</span><br><span class="line">f = final_theta[<span class="number">0</span>,<span class="number">0</span>] + (final_theta[<span class="number">0</span>,<span class="number">1</span>] * x) </span><br><span class="line"></span><br><span class="line">fig, ax = plt.subplots(figsize=(<span class="number">6</span>,<span class="number">4</span>))</span><br><span class="line">ax.plot(x, f, <span class="string">'r'</span>, label=<span class="string">'Prediction'</span>)</span><br><span class="line">ax.scatter(data[<span class="string">'Population'</span>], data.Profit, label=<span class="string">'Traning Data'</span>)</span><br><span class="line">ax.legend(loc=<span class="number">2</span>)  <span class="comment"># 2表示在左上角</span></span><br><span class="line">ax.set_xlabel(<span class="string">'Population'</span>)</span><br><span class="line">ax.set_ylabel(<span class="string">'Profit'</span>)</span><br><span class="line">ax.set_title(<span class="string">'Predicted Profit vs. Population Size'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-
 <p><img src="/images/output_18_0.png" alt="png"></p>
 <p>由于梯度方程式函数也在每个训练迭代中输出一个代价的向量，所以我们也可以绘制。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fig,ax = plt.subplots(figsize = (<span class="number">8</span>,<span class="number">4</span>))</span><br><span class="line">ax.plot(np.arange(epoch),cost,<span class="string">'r'</span>) <span class="comment">#np.arange()返回等差数组</span></span><br><span class="line">ax.set_xlabel(<span class="string">'Iterations'</span>)</span><br><span class="line">ax.set_ylabel(<span class="string">'Cost'</span>)</span><br><span class="line">ax.set_title(<span class="string">'Error vs. Training Epoch'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-
 <p><img src="/images/output_20_0.png" alt="png"></p>
 <h4 id="正规方程法"><a href="#正规方程法" class="headerlink" title="正规方程法"></a>正规方程法</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">normalEqn</span><span class="params">(X, y)</span>:</span></span><br><span class="line">    theta = np.linalg.inv(X.T*X)*X.T*y<span class="comment">#X.T*X等价于X.T.dot(X)</span></span><br><span class="line">    <span class="keyword">return</span> theta.T</span><br><span class="line">final_theta2 = normalEqn(X,Y)</span><br></pre></td></tr></table></figure>
-
 <p>打印两种方法的得到的参数值：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(final_theta,<span class="string">'\n'</span>,final_theta2)</span><br></pre></td></tr></table></figure>
-
 <pre><code>[[-3.24140214  1.1272942 ]] 
- [[-3.89578088  1.19303364]]</code></pre>
+ [[-3.89578088  1.19303364]]
+</code></pre>
     </article>
     <!-- license  -->
     
@@ -462,7 +453,7 @@ max     22.203000  24.147000</code></pre><p>绘制散点图：<br>plt.scatter(x,
             <p>原文作者：<a href="https://hiworldalice.github.io">Tnut</a>
             <p>原文链接：<a href="https://hiworldalice.github.io/2019/07/29/线性回归/">https://hiworldalice.github.io/2019/07/29/线性回归/</a>
             <p>发表日期：<a href="https://hiworldalice.github.io/2019/07/29/线性回归/">July 29th 2019, 3:20:34 am</a>
-            <p>更新日期：<a href="https://hiworldalice.github.io/2019/07/29/线性回归/">July 29th 2019, 4:27:15 pm</a>
+            <p>更新日期：<a href="https://hiworldalice.github.io/2019/07/29/线性回归/">July 29th 2019, 5:21:57 pm</a>
             <p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
@@ -588,7 +579,7 @@ max     22.203000  24.147000</code></pre><p>绘制散点图：<br>plt.scatter(x,
 
 
 
-top:50vh;
+top:60vh;
 
     >
         <div class="toc-catalog">
@@ -728,7 +719,22 @@ jsonContent:
     
         <script src="/scripts/share.js" async></script>    
      
-    </body>
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+</body>
 </html>
 
 
